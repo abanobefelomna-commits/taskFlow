@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TaskFlow Pro — A calmer way to get things done</title>
+  <meta name="description" content="A beautiful, fast, offline-first to-do list with projects, priorities, due dates, subtasks and keyboard shortcuts.">
+  <meta name="theme-color" content="#f4f3f0">
+  <script>
+    (function () {
+      try {
+        var raw = localStorage.getItem('taskflow.pro.v1');
+        var theme = raw ? JSON.parse(raw).theme : null;
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.dataset.theme = theme;
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%236155f5'/%3E%3Cpath d='M9 16.5 13.5 21 23 11' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 13h4l2 3h4l2-3h4"/><path d="M4 13 6.5 5.5A2 2 0 0 1 8.4 4h7.2a2 2 0 0 1 1.9 1.5L20 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></symbol>
+  <symbol id="i-upcoming" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/><path d="M8 15h.01M12 15h.01M16 15h.01" stroke-width="2.4"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.4 11 15l4.5-5.2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-grip" viewBox="0 0 24 24"><path d="M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M11 18l-6-6 6-6"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 21V9M7 14l5-5 5 5M5 3h14"/></symbol>
+  <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h9l-1.5 3L14 10H5"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-sort" viewBox="0 0 24 24"><path d="M7 4v16M4 7l3-3 3 3M17 20V4M14 17l3 3 3-3"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3Z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z"/></symbol>
+  <symbol id="i-logo" viewBox="0 0 24 24"><path d="M6 12.5 10 16.5 18 7.5"/></symbol>
+</svg>
+
+<div class="app" id="app">
+
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="brand">
+      <div class="brand-mark"><svg class="ic"><use href="#i-logo"/></svg></div>
+      <div class="brand-text">
+        <span class="brand-name">TaskFlow</span>
+        <span class="brand-badge">PRO</span>
+      </div>
+      <button class="icon-btn sidebar-close" id="sidebarClose" type="button" aria-label="Close menu">
+        <svg class="ic"><use href="#i-x"/></svg>
+      </button>
+    </div>
+
+    <nav class="nav" aria-label="Views">
+      <button class="nav-item" type="button" data-view="inbox">
+        <svg class="ic"><use href="#i-inbox"/></svg><span>Inbox</span><span class="count" id="count-inbox">0</span>
+      </button>
+      <button class="nav-item" type="button" data-view="today">
+        <svg class="ic"><use href="#i-sun"/></svg><span>Today</span><span class="count" id="count-today">0</span>
+      </button>
+      <button class="nav-item" type="button" data-view="upcoming">
+        <svg class="ic"><use href="#i-upcoming"/></svg><span>Upcoming</span><span class="count" id="count-upcoming">0</span>
+      </button>
+      <button class="nav-item" type="button" data-view="completed">
+        <svg class="ic"><use href="#i-check-circle"/></svg><span>Completed</span><span class="count" id="count-completed">0</span>
+      </button>
+    </nav>
+
+    <div class="section-head">
+      <span>Projects</span>
+      <button class="icon-btn tiny" id="addProjectBtn" type="button" title="New project" aria-label="New project">
+        <svg class="ic"><use href="#i-plus"/></svg>
+      </button>
+    </div>
+    <nav class="projects" id="projectList" aria-label="Projects"></nav>
+
+    <div class="sidebar-foot">
+      <div class="progress-card">
+        <svg class="ring" viewBox="0 0 44 44" aria-hidden="true">
+          <circle class="ring-bg" cx="22" cy="22" r="18"/>
+          <circle class="ring-fg" id="ringFg" cx="22" cy="22" r="18"/>
+        </svg>
+        <div class="progress-copy">
+          <span class="progress-title">Today</span>
+          <span class="progress-sub" id="todayProgressText">Nothing due today</span>
+        </div>
+      </div>
+
+      <div class="foot-actions">
+        <button class="foot-btn" id="themeBtn" type="button" title="Toggle theme">
+          <svg class="ic icon-moon"><use href="#i-moon"/></svg>
+          <svg class="ic icon-sun"><use href="#i-sun"/></svg>
+          <span>Theme</span>
+        </button>
+        <div class="popover-wrap foot-wrap">
+          <button class="foot-btn" id="dataBtn" type="button" data-menu-trigger title="Backup and data">
+            <svg class="ic"><use href="#i-download"/></svg><span>Data</span>
+          </button>
+          <div class="menu data-menu" id="dataMenu" hidden>
+            <button class="menu-item" type="button" data-action="export"><svg class="ic"><use href="#i-download"/></svg>Export backup</button>
+            <button class="menu-item" type="button" data-action="import"><svg class="ic"><use href="#i-upload"/></svg>Import backup</button>
+            <div class="menu-sep"></div>
+            <button class="menu-item" type="button" data-action="clear-completed"><svg class="ic"><use href="#i-check-circle"/></svg>Clear completed</button>
+            <button class="menu-item danger" type="button" data-action="reset"><svg class="ic"><use href="#i-trash"/></svg>Reset all data</button>
+          </div>
+        </div>
+        <button class="foot-btn" id="helpBtn" type="button" title="Keyboard shortcuts">
+          <svg class="ic"><use href="#i-keyboard"/></svg><span>Keys</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="scrim" id="scrim"></div>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-label="Open menu">
+          <svg class="ic"><use href="#i-menu"/></svg>
+        </button>
+
+        <div class="view-head">
+          <h1 id="viewTitle">Inbox</h1>
+          <p id="viewSubtitle">Loading…</p>
+        </div>
+
+        <div class="top-actions">
+          <label class="search" for="searchInput">
+            <svg class="ic"><use href="#i-search"/></svg>
+            <input id="searchInput" type="search" placeholder="Search tasks…" autocomplete="off" spellcheck="false">
+            <button class="search-clear" id="searchClear" type="button" aria-label="Clear search" hidden>
+              <svg class="ic"><use href="#i-x"/></svg>
+            </button>
+            <kbd>/</kbd>
+          </label>
+          <button class="btn primary" id="newTaskBtn" type="button" aria-label="New task">
+            <svg class="ic"><use href="#i-plus"/></svg><span>New task</span><kbd>N</kbd>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="content" id="content">
+      <div class="container">
+        <form class="quick-add" id="quickForm" autocomplete="off">
+          <span class="qa-plus"><svg class="ic"><use href="#i-plus"/></svg></span>
+          <input id="quickInput" type="text" placeholder="Add a task…   @tomorrow  !1  #Work" maxlength="240" aria-label="Quick add a task">
+          <button class="btn ghost small qa-submit" type="submit">Add</button>
+        </form>
+        <div class="qa-preview" id="qaPreview" aria-live="polite"></div>
+
+        <div class="list-toolbar">
+          <span class="task-count" id="taskCountLabel"></span>
+          <div class="toolbar-right">
+            <button class="btn subtle small" id="clearCompletedBtn" type="button" hidden>Clear completed</button>
+            <div class="popover-wrap">
+              <button class="btn subtle small" id="sortBtn" type="button" data-menu-trigger>
+                <svg class="ic"><use href="#i-sort"/></svg>
+                <span id="sortLabel">Manual</span>
+                <svg class="ic chev"><use href="#i-chevron-down"/></svg>
+              </button>
+              <div class="menu" id="sortMenu" hidden>
+                <button class="menu-item" type="button" data-sort="manual"><span>Manual</span><svg class="ic menu-check"><use href="#i-check"/></svg></button>
+                <button class="menu-item" type="button" data-sort="due"><span>Due date</span><svg class="ic menu-check"><use href="#i-check"/></svg></button>
+                <button class="menu-item" type="button" data-sort="priority"><span>Priority</span><svg class="ic menu-check"><use href="#i-check"/></svg></button>
+                <button class="menu-item" type="button" data-sort="name"><span>Name</span><svg class="ic menu-check"><use href="#i-check"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="taskList" class="task-list"></div>
+      </div>
+    </div>
+  </main>
+
+  <div class="drawer-scrim" id="drawerScrim"></div>
+
+  <aside class="drawer" id="drawer" aria-hidden="true" aria-label="Task details">
+    <header class="drawer-head">
+      <button class="icon-btn" id="drawerBack" type="button" aria-label="Close task details">
+        <svg class="ic"><use href="#i-arrow-left"/></svg>
+      </button>
+      <span class="drawer-eyebrow">Task details</span>
+      <button class="icon-btn" id="drawerClose" type="button" aria-label="Close">
+        <svg class="ic"><use href="#i-x"/></svg>
+      </button>
+    </header>
+
+    <div class="drawer-body">
+      <div class="detail-title-row">
+        <button class="check big" id="drawerCheck" type="button" role="checkbox" aria-checked="false" aria-label="Toggle completion">
+          <svg class="ic"><use href="#i-check"/></svg>
+        </button>
+        <input id="drawerTitle" class="detail-title" type="text" maxlength="200" aria-label="Task title">
+      </div>
+
+      <div class="detail-fields">
+        <label class="detail-field">
+          <span class="field-label">Due date</span>
+          <input type="date" id="drawerDue" class="input">
+        </label>
+        <label class="detail-field">
+          <span class="field-label">Project</span>
+          <select id="drawerProject" class="input"></select>
+        </label>
+      </div>
+
+      <div class="quick-dates" id="quickDates">
+        <button type="button" data-quick-due="today">Today</button>
+        <button type="button" data-quick-due="tomorrow">Tomorrow</button>
+        <button type="button" data-quick-due="week">Next week</button>
+        <button type="button" data-quick-due="none">No date</button>
+      </div>
+
+      <div class="detail-field">
+        <span class="field-label">Priority</span>
+        <div class="prio-picker" id="drawerPriority">
+          <button type="button" data-prio="0" class="prio-opt">None</button>
+          <button type="button" data-prio="1" class="prio-opt">P1</button>
+          <button type="button" data-prio="2" class="prio-opt">P2</button>
+          <button type="button" data-prio="3" class="prio-opt">P3</button>
+          <button type="button" data-prio="4" class="prio-opt">P4</button>
+        </div>
+      </div>
+
+      <label class="detail-field">
+        <span class="field-label">Notes</span>
+        <textarea id="drawerNotes" class="input" rows="4" placeholder="Add context, links, or next steps…"></textarea>
+      </label>
+
+      <div class="field-label-row">
+        <span class="field-label">Subtasks</span>
+        <span class="muted small" id="subtaskCount"></span>
+      </div>
+      <ul class="subtasks" id="drawerSubtasks"></ul>
+      <form class="subtask-form" id="subtaskForm">
+        <svg class="ic"><use href="#i-plus"/></svg>
+        <input id="subtaskInput" type="text" placeholder="Add subtask…" maxlength="160" autocomplete="off">
+      </form>
+
+      <div class="field-label-row"><span class="field-label">Tags</span></div>
+      <div class="tag-editor" id="drawerTags"></div>
+
+      <p class="drawer-meta" id="drawerMeta"></p>
+    </div>
+
+    <footer class="drawer-foot">
+      <button class="btn danger-ghost" id="deleteTaskBtn" type="button">
+        <svg class="ic"><use href="#i-trash"/></svg>Delete task
+      </button>
+      <span class="spacer"></span>
+      <button class="btn primary" id="drawerDoneBtn" type="button">Done</button>
+    </footer>
+  </aside>
+
+  <div class="modal-wrap" id="taskModalWrap" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle">
+      <div class="modal-head">
+        <div>
+          <h2 id="taskModalTitle">New task</h2>
+          <p class="modal-sub">Capture it now, refine it later.</p>
+        </div>
+        <button class="icon-btn" type="button" data-close-modal="taskModalWrap" aria-label="Close">
+          <svg class="ic"><use href="#i-x"/></svg>
+        </button>
+      </div>
+      <form id="taskForm">
+        <label class="field">
+          <span class="field-label">Task</span>
+          <input id="ntTitle" class="input" type="text" placeholder="What needs doing?" maxlength="200" required>
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">Due date</span>
+            <input id="ntDue" class="input" type="date">
+          </label>
+          <label class="field">
+            <span class="field-label">Project</span>
+            <select id="ntProject" class="input"></select>
+          </label>
+        </div>
+        <div class="field">
+          <span class="field-label">Priority</span>
+          <div class="prio-picker" id="ntPriority">
+            <button type="button" data-prio="0" class="prio-opt active">None</button>
+            <button type="button" data-prio="1" class="prio-opt">P1</button>
+            <button type="button" data-prio="2" class="prio-opt">P2</button>
+            <button type="button" data-prio="3" class="prio-opt">P3</button>
+            <button type="button" data-prio="4" class="prio-opt">P4</button>
+          </div>
+        </div>
+        <label class="field">
+          <span class="field-label">Notes</span>
+          <textarea id="ntNotes" class="input" rows="3" placeholder="Optional details…"></textarea>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="btn ghost" data-close-modal="taskModalWrap">Cancel</button>
+          <button type="submit" class="btn primary">Add task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-wrap" id="projectModalWrap" hidden>
+    <div class="modal small" role="dialog" aria-modal="true" aria-labelledby="projectModalTitle">
+      <div class="modal-head">
+        <h2 id="projectModalTitle">New project</h2>
+        <button class="icon-btn" type="button" data-close-modal="projectModalWrap" aria-label="Close">
+          <svg class="ic"><use href="#i-x"/></svg>
+        </button>
+      </div>
+      <form id="projectForm">
+        <label class="field">
+          <span class="field-label">Name</span>
+          <input id="pmName" class="input" type="text" placeholder="e.g. Marketing" maxlength="40" required>
+        </label>
+        <div class="field">
+          <span class="field-label">Color</span>
+          <div class="swatches" id="pmColors"></div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn danger-ghost" id="pmDelete" hidden>Delete</button>
+          <span class="spacer"></span>
+          <button type="button" class="btn ghost" data-close-modal="projectModalWrap">Cancel</button>
+          <button type="submit" class="btn primary">Save project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-wrap" id="confirmModalWrap" hidden>
+    <div class="modal tiny" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <h2 id="confirmTitle">Are you sure?</h2>
+      <p class="modal-sub" id="confirmMessage"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" id="confirmCancel">Cancel</button>
+        <button type="button" class="btn danger" id="confirmOk">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-wrap" id="helpModalWrap" hidden>
+    <div class="modal small" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <div class="modal-head">
+        <div>
+          <h2 id="helpTitle">Keyboard shortcuts</h2>
+          <p class="modal-sub">Work without reaching for the mouse.</p>
+        </div>
+        <button class="icon-btn" type="button" data-close-modal="helpModalWrap" aria-label="Close">
+          <svg class="ic"><use href="#i-x"/></svg>
+        </button>
+      </div>
+      <div class="shortcuts">
+        <div><span>New task</span><kbd>N</kbd></div>
+        <div><span>Search</span><kbd>/</kbd></div>
+        <div><span>Completed view</span><kbd data-plain>G then C</kbd></div>
+        <div><span>Today view</span><kbd data-plain>G then T</kbd></div>
+        <div><span>Close panel</span><kbd>Esc</kbd></div>
+        <div><span>Shortcut help</span><kbd>?</kbd></div>
+      </div>
+      <p class="hint-line">Quick add understands <code>@tomorrow</code>, <code>!1</code> and <code>#Project</code>.</p>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <div class="confetti-layer" id="confetti" aria-hidden="true"></div>
+  <input type="file" id="importFile" accept="application/json,.json" hidden>
+</div>
+
+<script defer src="app.js"></script>
+</body>
+</html>
